@@ -31,10 +31,8 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             pbDropArea = new PictureBox();
             dgvMediaFile = new DataGridView();
-            Column1 = new DataGridViewTextBoxColumn();
-            Column2 = new DataGridViewTextBoxColumn();
             groupBox1 = new GroupBox();
-            label1 = new Label();
+            labelPatternA = new Label();
             tbDefineString = new TextBox();
             rbPatternD = new RadioButton();
             rbPatternC = new RadioButton();
@@ -45,13 +43,15 @@
             chkbDeleteFile = new CheckBox();
             btnDialog = new Button();
             chkbOpenDir = new CheckBox();
-            label2 = new Label();
+            labelExportDir = new Label();
             tbExportDir = new TextBox();
             groupBox3 = new GroupBox();
-            label3 = new Label();
+            labelSampleFileName = new Label();
             btnRename = new Button();
             btnRemove = new Button();
             btnReference = new Button();
+            col1DgvMediaFile = new DataGridViewTextBoxColumn();
+            col2DgvMediaFile = new DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)pbDropArea).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dgvMediaFile).BeginInit();
             groupBox1.SuspendLayout();
@@ -77,7 +77,7 @@
             dgvMediaFile.AllowUserToResizeColumns = false;
             dgvMediaFile.AllowUserToResizeRows = false;
             dgvMediaFile.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvMediaFile.Columns.AddRange(new DataGridViewColumn[] { Column1, Column2 });
+            dgvMediaFile.Columns.AddRange(new DataGridViewColumn[] { col1DgvMediaFile, col2DgvMediaFile });
             dgvMediaFile.Location = new Point(12, 106);
             dgvMediaFile.MultiSelect = false;
             dgvMediaFile.Name = "dgvMediaFile";
@@ -87,23 +87,9 @@
             dgvMediaFile.Size = new Size(320, 288);
             dgvMediaFile.TabIndex = 1;
             // 
-            // Column1
-            // 
-            Column1.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            Column1.HeaderText = "オリジナルファイル名";
-            Column1.Name = "Column1";
-            Column1.ReadOnly = true;
-            // 
-            // Column2
-            // 
-            Column2.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            Column2.HeaderText = "リネームファイル名";
-            Column2.Name = "Column2";
-            Column2.ReadOnly = true;
-            // 
             // groupBox1
             // 
-            groupBox1.Controls.Add(label1);
+            groupBox1.Controls.Add(labelPatternA);
             groupBox1.Controls.Add(tbDefineString);
             groupBox1.Controls.Add(rbPatternD);
             groupBox1.Controls.Add(rbPatternC);
@@ -116,14 +102,14 @@
             groupBox1.TabStop = false;
             groupBox1.Text = "ファイル名パターン";
             // 
-            // label1
+            // labelPatternA
             // 
-            label1.AutoSize = true;
-            label1.Location = new Point(234, 26);
-            label1.Name = "label1";
-            label1.Size = new Size(57, 15);
-            label1.TabIndex = 5;
-            label1.Text = "） + 連番";
+            labelPatternA.AutoSize = true;
+            labelPatternA.Location = new Point(234, 26);
+            labelPatternA.Name = "labelPatternA";
+            labelPatternA.Size = new Size(57, 15);
+            labelPatternA.TabIndex = 5;
+            labelPatternA.Text = "） + 連番";
             // 
             // tbDefineString
             // 
@@ -187,7 +173,7 @@
             groupBox2.Controls.Add(chkbDeleteFile);
             groupBox2.Controls.Add(btnDialog);
             groupBox2.Controls.Add(chkbOpenDir);
-            groupBox2.Controls.Add(label2);
+            groupBox2.Controls.Add(labelExportDir);
             groupBox2.Controls.Add(tbExportDir);
             groupBox2.Location = new Point(356, 252);
             groupBox2.Name = "groupBox2";
@@ -238,14 +224,14 @@
             chkbOpenDir.UseVisualStyleBackColor = true;
             chkbOpenDir.CheckedChanged += chkbOpenDir_CheckedChanged;
             // 
-            // label2
+            // labelExportDir
             // 
-            label2.AutoSize = true;
-            label2.Location = new Point(16, 26);
-            label2.Name = "label2";
-            label2.Size = new Size(66, 15);
-            label2.TabIndex = 1;
-            label2.Text = "出力フォルダ";
+            labelExportDir.AutoSize = true;
+            labelExportDir.Location = new Point(16, 26);
+            labelExportDir.Name = "labelExportDir";
+            labelExportDir.Size = new Size(66, 15);
+            labelExportDir.TabIndex = 1;
+            labelExportDir.Text = "出力フォルダ";
             // 
             // tbExportDir
             // 
@@ -257,7 +243,7 @@
             // 
             // groupBox3
             // 
-            groupBox3.Controls.Add(label3);
+            groupBox3.Controls.Add(labelSampleFileName);
             groupBox3.Location = new Point(356, 176);
             groupBox3.Name = "groupBox3";
             groupBox3.Size = new Size(416, 60);
@@ -265,14 +251,14 @@
             groupBox3.TabStop = false;
             groupBox3.Text = "ファイル名サンプル";
             // 
-            // label3
+            // labelSampleFileName
             // 
-            label3.AutoSize = true;
-            label3.Location = new Point(16, 26);
-            label3.Name = "label3";
-            label3.Size = new Size(66, 15);
-            label3.TabIndex = 2;
-            label3.Text = "出力フォルダ";
+            labelSampleFileName.AutoSize = true;
+            labelSampleFileName.Location = new Point(16, 26);
+            labelSampleFileName.Name = "labelSampleFileName";
+            labelSampleFileName.Size = new Size(90, 15);
+            labelSampleFileName.TabIndex = 2;
+            labelSampleFileName.Text = "ファイル名サンプル";
             // 
             // btnRename
             // 
@@ -303,6 +289,20 @@
             btnReference.Text = "公式リファレンス";
             btnReference.UseVisualStyleBackColor = true;
             btnReference.Click += btnReference_Click;
+            // 
+            // col1DgvMediaFile
+            // 
+            col1DgvMediaFile.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            col1DgvMediaFile.HeaderText = "オリジナルファイル名";
+            col1DgvMediaFile.Name = "col1DgvMediaFile";
+            col1DgvMediaFile.ReadOnly = true;
+            // 
+            // col2DgvMediaFile
+            // 
+            col2DgvMediaFile.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            col2DgvMediaFile.HeaderText = "リネームファイル名";
+            col2DgvMediaFile.Name = "col2DgvMediaFile";
+            col2DgvMediaFile.ReadOnly = true;
             // 
             // FormMain
             // 
@@ -345,21 +345,21 @@
         private RadioButton rbPatternC;
         private RadioButton rbPatternB;
         private RadioButton rbPatternA;
-        private Label label1;
+        private Label labelPatternA;
         private TextBox tbDefineString;
         private GroupBox groupBox2;
         private Button btnDialog;
         private CheckBox chkbOpenDir;
-        private Label label2;
+        private Label labelExportDir;
         private TextBox tbExportDir;
         private CheckBox chkbDeleteFile;
         private GroupBox groupBox3;
-        private Label label3;
+        private Label labelSampleFileName;
         private Button btnRename;
         private Button btnRemove;
         private Button btnResetLog;
-        private DataGridViewTextBoxColumn Column1;
-        private DataGridViewTextBoxColumn Column2;
         private Button btnReference;
+        private DataGridViewTextBoxColumn col1DgvMediaFile;
+        private DataGridViewTextBoxColumn col2DgvMediaFile;
     }
 }

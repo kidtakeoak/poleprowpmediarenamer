@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PoleproWpMediaRenamer
+﻿namespace PoleproWpMediaRenamer
 {
     public class FileInfo
     {
@@ -27,10 +21,15 @@ namespace PoleproWpMediaRenamer
         private string strDeleteFlag;
 
         public string FilePath { get => strFilePath; set => strFilePath = value; }
+
         public string BeforeFileName { get => strBeforeFileName; set => strBeforeFileName = value; }
+
         public string AfterFileName { get => strAfterFileName; set => strAfterFileName = value; }
+
         public string RemoveFlag { get => strRemoveFlag; set => strRemoveFlag = value; }
+
         public string RenameFlag { get => strRenameFlag; set => strRenameFlag = value; }
+
         public string DeleteFlag { get => strDeleteFlag; set => strDeleteFlag = value; }
     }
 }

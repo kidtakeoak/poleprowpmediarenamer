@@ -1,163 +1,137 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskBand;
-
-namespace PoleproWpMediaRenamer
+﻿namespace PoleproWpMediaRenamer
 {
     public static class FileName
     {
         /// <summary>
-        /// 任意文字列-連番で、ユニークなファイル名をリターンする
+        /// 選択中のファイル名パターンに従い、ユニークなファイル名をリターンする
         /// </summary>
-        public static string PatternA(string strFilePath, string strDefineString)
+        public static string Create(string strFilePath)
         {
-            // 結果を格納する変数
             string strFileName = "";
 
-            for (int intA = 1; intA < 10000; intA++)
+            // (1)任意文字列 + 連番
+            if (CommonInfo.FileNamePattern == "0")
             {
-                string strNumber = "";
-
-                if (intA < 10)
+                for (int intA = 1; intA < 10000; intA++)
                 {
-                    strNumber = "000" + intA.ToString();
-                }
-                else if (intA < 100)
-                {
-                    strNumber = "00" + intA.ToString();
-                }
-                else if (intA < 1000)
-                {
-                    strNumber = "0" + intA.ToString();
-                }
-                else
-                {
-                    strNumber = intA.ToString();
-                }
+                    // 4桁の連番を生成
+                    string strNumber;
 
-                string strTempName = strDefineString + "-" + strNumber;
-
-                if (!CommonInfo.Log.Contains(strTempName))
-                {
-                    strFileName = strTempName;
-                    break;
-                }
-            }
-
-            return strFileName;
-        }
-
-        /// <summary>
-        /// 今日の日付-連番で、ユニークなファイル名をリターンする
-        /// </summary>
-        public static string PatternB(string strFilePath)
-        {
-            // 結果を格納する変数
-            string strFileName = "";
-
-            // 今日の日付
-            string strToday = DateTime.Now.ToString("yyyyMMdd");
-
-            for (int intA = 1; intA < 10000; intA++)
-            {
-                string strNumber = "";
-
-                if (intA < 10)
-                {
-                    strNumber = "000" + intA.ToString();
-                }
-                else if (intA < 100)
-                {
-                    strNumber = "00" + intA.ToString();
-                }
-                else if (intA < 1000)
-                {
-                    strNumber = "0" + intA.ToString();
-                }
-                else
-                {
-                    strNumber = intA.ToString();
-                }
-
-                string strTempName = strToday + "-" + strNumber;
-
-                if (!CommonInfo.Log.Contains(strTempName))
-                {
-                    strFileName = strTempName;
-                    break;
-                }
-            }
-
-            return strFileName;
-        }
-
-        /// <summary>
-        /// ファイルの最終更新日でユニークなファイル名を生成する
-        /// </summary>
-        public static string PatternC(string strFilePath)
-        {
-            // 結果を格納する変数
-            string strFileName = "";
-
-            // ファイルの最終更新日時
-            string strLastUpdate = File.GetLastWriteTime(strFilePath).ToString("yyyyMMdd-HHmmss");
-
-            if (!CommonInfo.Log.Contains(strLastUpdate))
-            {
-                strFileName = strLastUpdate;
-            }
-
-            return strFileName;
-        }
-
-        /// <summary>
-        /// ランダムでユニークなファイル名を生成する
-        /// </summary>
-        public static string PatternD()
-        {
-            // 結果を格納する変数
-            string strFileName;
-
-            // 使用可能な文字
-            string strAllowChar = "abcdefghijklmnopqrstuvwxyz0123456789";
-
-            Random rand = new Random();
-
-            while (true)
-            {
-                string strResult = "";
-
-                for (int intA = 0; intA < 12; intA++)
-                {
-                    int intRandomIndex = rand.Next(0, strAllowChar.Length);
-                    char charLetter = strAllowChar[intRandomIndex];
-
-                    if (strResult == "")
+                    if (intA < 10)
                     {
-                        strResult = charLetter.ToString();
+                        strNumber = "000" + intA.ToString();
+                    }
+                    else if (intA < 100)
+                    {
+                        strNumber = "00" + intA.ToString();
+                    }
+                    else if (intA < 1000)
+                    {
+                        strNumber = "0" + intA.ToString();
                     }
                     else
                     {
-                        strResult = strResult + charLetter.ToString();
+                        strNumber = intA.ToString();
                     }
 
-                }
+                    string strTempName = CommonInfo.DefineString + "-" + strNumber;
 
-                if (!CommonInfo.Log.Contains(strResult))
-                {
-                    strFileName = strResult;
-                    break;
+                    if (!CommonInfo.FileNameLog.Contains(strTempName))
+                    {
+                        strFileName = strTempName;
+                        break;
+                    }
                 }
             }
 
+            // (2)今日の日付 + 連番
+            else if (CommonInfo.FileNamePattern == "1")
+            {
+                // 今日の日付を8桁の文字列で生成
+                string strToday = DateTime.Now.ToString("yyyyMMdd");
+
+                for (int intA = 1; intA < 10000; intA++)
+                {
+                    // 4桁の連番を生成
+                    string strNumber;
+
+                    if (intA < 10)
+                    {
+                        strNumber = "000" + intA.ToString();
+                    }
+                    else if (intA < 100)
+                    {
+                        strNumber = "00" + intA.ToString();
+                    }
+                    else if (intA < 1000)
+                    {
+                        strNumber = "0" + intA.ToString();
+                    }
+                    else
+                    {
+                        strNumber = intA.ToString();
+                    }
+
+                    string strTempName = strToday + "-" + strNumber;
+
+                    if (!CommonInfo.FileNameLog.Contains(strTempName))
+                    {
+                        strFileName = strTempName;
+                        break;
+                    }
+                }
+            }
+
+            // (3)ファイル更新時刻
+            else if (CommonInfo.FileNamePattern == "2")
+            {
+                // ファイルの最終更新日時
+                string strTempName = File.GetLastWriteTime(strFilePath).ToString("yyyyMMdd-HHmmss");
+
+                if (!CommonInfo.FileNameLog.Contains(strTempName))
+                {
+                    strFileName = strTempName;
+                }
+            }
+
+            // (4)ランダム
+            else
+            {
+                // 使用可能な文字
+                string strAllowChar = CommonInfo.AllowChar;
+
+                Random rand = new Random();
+
+                while (true)
+                {
+                    string strTempName = "";
+
+                    for (int intA = 0; intA < 12; intA++)
+                    {
+                        int intRandomIndex = rand.Next(0, strAllowChar.Length);
+                        char charLetter = strAllowChar[intRandomIndex];
+
+                        if (strTempName == "")
+                        {
+                            strTempName = charLetter.ToString();
+                        }
+                        else
+                        {
+                            strTempName = strTempName + charLetter.ToString();
+                        }
+
+                    }
+
+                    if (!CommonInfo.FileNameLog.Contains(strTempName))
+                    {
+                        strFileName = strTempName;
+                        break;
+                    }
+                }
+            }
+
+            // 結果をリターン
             return strFileName;
         }
-
-
-
     }
 }

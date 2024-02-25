@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace PoleproWpMediaRenamer
 {
     internal static class Program
@@ -13,11 +11,14 @@ namespace PoleproWpMediaRenamer
             // アプリケーションの起動時処理
             CommonInfo.AppInit();
 
+            // アプリケーション開始をログに記録
+            Logger.Log(Logger.GetLog("L0000"));
+
             // Config.txtファイルの情報をCommonInfoクラスに保持する
             CommonInfo.ReadConfig();
 
-            // Log.txtファイルの情報をCommonInfoクラスに保持する
-            CommonInfo.ReadLog();
+            // FileNameLog.txtファイルの情報をCommonInfoクラスに保持する
+            CommonInfo.ReadFileNameLog();
 
             // FormMainを表示する
             ApplicationConfiguration.Initialize();

@@ -1,14 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace PoleproWpMediaRenamer
 {
     public static class CommonInfo
     {
+        // ==================
+        // ==== 汎用変数 ====
+        // ==================
+
+        // ファイル名で使用可能な文字
+        private static string strAllowChar = "abcdefghijklmnopqrstuvwxyz0123456789";
+
+        public static string AllowChar { get => strAllowChar; }
+
+
+
+        // ==================================
         // ==== アプリケーション基礎情報 ====
+        // ==================================
 
         // アプリケーション実行ディレクトリ
         private static string strAppDir;
@@ -16,21 +25,30 @@ namespace PoleproWpMediaRenamer
         // AppDataフォルダパス
         private static string strAppDataDir;
 
+        // AppLog.txtファイルパス
+        private static string strAppLogTxt;
+
         // Config.txtファイルパス
         private static string strConfigTxt;
 
         // Log.txtファイルパス
-        private static string strLogTxt;
+        private static string strFileNameLogTxt;
 
         public static string AppDir { get => strAppDir; set => strAppDir = value; }
 
         public static string AppDataDir { get => strAppDataDir; set => strAppDataDir = value; }
 
+        public static string AppLogTxt { get => strAppLogTxt; set => strAppLogTxt = value; }
+
         public static string ConfigTxt { get => strConfigTxt; set => strConfigTxt = value; }
 
-        public static string LogTxt { get => strLogTxt; set => strLogTxt = value; }
+        public static string FileNameLogTxt { get => strFileNameLogTxt; set => strFileNameLogTxt = value; }
 
+
+
+        // ==================
         // ==== 設定情報 ====
+        // ==================
 
         // ファイル名パターン
         private static string strFileNamePattern;
@@ -57,6 +75,11 @@ namespace PoleproWpMediaRenamer
 
         public static string DeleteFile { get => strDeleteFile; set => strDeleteFile = value; }
 
+
+
+        /// <summary>
+        /// Config.txtを読み取り、内容を静的メンバーに保持する
+        /// </summary>
         public static void ReadConfig()
         {
             // ==== デフォルト値をセット ====
@@ -123,6 +146,11 @@ namespace PoleproWpMediaRenamer
             srConfig.Close();
         }
 
+
+
+        /// <summary>
+        /// 静的メンバーに保持した設定情報を、Config.txtに書き込む
+        /// </summary>
         public static void WriteConfig()
         {
             // ==== Config.txtに書き込む情報を生成 ====
@@ -159,26 +187,32 @@ namespace PoleproWpMediaRenamer
             swConfig.Close();
         }
 
-        // ==== Log情報 ====
+
+
+        // =====================================
+        // ==== 生成したファイル名のLog情報 ====
+        // =====================================
 
         // 過去に生成済みのファイル名
-        private static string[] arrLog;
+        private static string[] arrFileNameLog;
 
-        public static string[] Log { get => arrLog; set => arrLog = value; }
+        public static string[] FileNameLog { get => arrFileNameLog; set => arrFileNameLog = value; }
+
+
 
         /// <summary>
         /// Log.txtの情報を静的メンバーに保持する
         /// </summary>
-        public static void ReadLog()
+        public static void ReadFileNameLog()
         {
             // Log.txtの内容を格納する配列
             string[] arrLogRecord = [];
 
-            StreamReader srLog = new StreamReader(LogTxt, Encoding.GetEncoding("UTF-8"));
+            StreamReader srFileNameLog = new StreamReader(FileNameLogTxt, Encoding.GetEncoding("UTF-8"));
 
-            while (srLog.Peek() != -1)
+            while (srFileNameLog.Peek() != -1)
             {
-                string strReadLine = srLog.ReadLine();
+                string strReadLine = srFileNameLog.ReadLine();
 
                 if (strReadLine != "")
                 {
@@ -187,54 +221,60 @@ namespace PoleproWpMediaRenamer
                 }
             }
 
-            srLog.Close();
+            srFileNameLog.Close();
 
             // 静的メンバーに保持
-            Log = arrLogRecord;
+            FileNameLog = arrLogRecord;
         }
+
+
 
         /// <summary>
         /// 静的メンバーにファイル名を追加する
         /// </summary>
-        public static void AppendLog(string strFileName)
+        public static void AppendFileNameLog(string strFileName)
         {
             // Log.txtの内容を格納する配列
-            string[] arrLogRecord = Log;
+            string[] arrLogRecord = FileNameLog;
 
             Array.Resize(ref arrLogRecord, arrLogRecord.Length + 1);
             arrLogRecord[arrLogRecord.Length - 1] = strFileName;
 
             // 静的メンバーに保持
-            Log = arrLogRecord;
+            FileNameLog = arrLogRecord;
         }
+
 
 
         /// <summary>
         /// 静的メンバーの情報をLog.txtに書き込む
         /// </summary>
-        public static void WriteLog()
+        public static void WriteFileNameLog()
         {
             // Log.txtに書き込む配列
-            string[] arrLogRecord = Log;
+            string[] arrLogRecord = FileNameLog;
 
             Array.Sort(arrLogRecord);
 
             // ==== Log.txtに書き込み ====
-            StreamWriter swLog = new StreamWriter(LogTxt, false, Encoding.GetEncoding("UTF-8"));
+            StreamWriter swFileNameLog = new StreamWriter(FileNameLogTxt, false, Encoding.GetEncoding("UTF-8"));
 
             for (int intA = 0; intA < arrLogRecord.Length; intA++)
             {
                 if (arrLogRecord[intA] != "")
                 {
-                    swLog.WriteLine(arrLogRecord[intA]);
+                    swFileNameLog.WriteLine(arrLogRecord[intA]);
                 }
             }
 
-            swLog.Close();
+            swFileNameLog.Close();
         }
 
-        // ==== WordPressにアップロードできるファイル拡張子 ====
 
+
+        // =====================================================
+        // ==== WordPressにアップロードできるファイル拡張子 ====
+        // =====================================================
         public static string[] Extension
         {
             get => AllowExtension();
@@ -252,7 +292,7 @@ namespace PoleproWpMediaRenamer
         // 動画の拡張子一覧
         private static string strMovieExtension = ".avi .mpg .mp4 .m4v .mov .ogv .vtt .wmv .3gp .3g2";
 
-        public static string[] AllowExtension()
+        private static string[] AllowExtension()
         {
             string[] arrExtension = [];
 
@@ -299,10 +339,20 @@ namespace PoleproWpMediaRenamer
             return arrExtension;
         }
 
+
+
+        // ==========================
         // ==== 公式リファレンス ====
+        // ==========================
         private static string strReferenceUrl = "https://polepro.blog/poleprowpmediarenamer/";
 
         public static string ReferenceUrl { get => strReferenceUrl; }
+
+
+
+        // ========================================
+        // ==== アプリケーション開始時メソッド ====
+        // ========================================
 
         /// <summary>
         /// アプリケーション基礎情報を静的メンバーに保持する
@@ -321,6 +371,21 @@ namespace PoleproWpMediaRenamer
             }
             AppDataDir = strAppDataDir;
 
+            // AppLog.txt
+            string strAppLogTxt = AppDataDir + "\\AppLog-" + DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".txt";
+            if (File.Exists(strAppLogTxt))
+            {
+                File.Delete(strAppLogTxt);
+            }
+
+            FileStream fsAppLog = File.Create(strAppLogTxt);
+            fsAppLog.Close();
+
+            AppLogTxt = strAppLogTxt;
+
+            // 古いAppLog.txtを削除する
+            DeleteOldAppLog();
+
             // Config.txt
             string strConfigTxt = AppDataDir + "\\Config.txt";
             if (!File.Exists(strConfigTxt))
@@ -330,14 +395,40 @@ namespace PoleproWpMediaRenamer
             }
             ConfigTxt = strConfigTxt;
 
-            // Log.txt
-            string strLogTxt = AppDataDir + "\\Log.txt";
-            if (!File.Exists(strLogTxt))
+            // FileNameLog.txt
+            string strFileNameLogTxt = AppDataDir + "\\FineNameLog.txt";
+            if (!File.Exists(strFileNameLogTxt))
             {
-                FileStream fsLog = File.Create(strLogTxt);
-                fsLog.Close();
+                FileStream fsFileNameLog = File.Create(strFileNameLogTxt);
+                fsFileNameLog.Close();
             }
-            LogTxt = strLogTxt;
+            FileNameLogTxt = strFileNameLogTxt;
+        }
+
+
+
+        /// <summary>
+        /// 古いAppLog.txtを削除する
+        /// </summary>
+        private static void DeleteOldAppLog()
+        {
+            DirectoryInfo diAppData = new DirectoryInfo(AppDataDir);
+
+            System.IO.FileInfo[] fiAppLogTxt = diAppData.GetFiles("*AppLog-*");
+            foreach (System.IO.FileInfo f in fiAppLogTxt)
+            {
+                string strAppLogTxt = f.FullName;
+                string strAppLogTxtName = strAppLogTxt.Split("\\")[strAppLogTxt.Split("\\").Length - 1];
+
+                int intCheckTxtDay = int.Parse(strAppLogTxtName.Split("-")[1]);
+                int intToday = int.Parse(DateTime.Now.ToString("yyyyMMdd"));
+
+                // ログの保有期間は、2日前までとする
+                if (intToday - intCheckTxtDay > 2)
+                {
+                    File.Delete(strAppLogTxt);
+                }
+            }
         }
     }
 }

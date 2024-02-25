@@ -1,15 +1,24 @@
-using System.ComponentModel.DataAnnotations;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
 using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Text.Json.Nodes;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.VisualBasic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
 
 namespace PoleproWpMediaRenamer
 {
     public partial class FormMain : Form
     {
         private List<FileInfo> listFileInfo = new List<FileInfo>();
-        private bool boolFormLoading = false;
-
         private bool boolCharAlert = true;
         private bool boolLengthAlert = true;
 
@@ -53,6 +62,11 @@ namespace PoleproWpMediaRenamer
             }
         }
 
+
+
+        // ====================================================
+        // ==== ドロップエリアへのファイルドロップイベント ====
+        // ====================================================
         private void pbDropArea_DragEnter(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
@@ -97,11 +111,11 @@ namespace PoleproWpMediaRenamer
                                     break;
                                 }
 
+                                // 同じ名前のファイルは許可しない
                                 if (listFileInfo[intC].BeforeFileName == strBeforeFileName)
                                 {
                                     boolAdd = false;
-                                    // メッセージボックスを実装
-                                    MessageBox.Show("おなじじじ");
+                                    System.Windows.Forms.MessageBox.Show(Message.GetMessage("M0000"), Message.GetCaption("C0000"), MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                                     break;
                                 }
                             }
@@ -131,11 +145,17 @@ namespace PoleproWpMediaRenamer
             UpdateDgvMediaFile();
         }
 
+
+
+        /// <summary>
+        /// DataGridViewを更新
+        /// </summary>
         private void UpdateDgvMediaFile()
         {
             // dgvMediaFileを初期化
             dgvMediaFile.Rows.Clear();
 
+            // DataGridViewに追加する情報を生成
             string[] arrDgvInfo = [];
 
             for (int intA = 0; intA < listFileInfo.Count; intA++)
@@ -157,27 +177,34 @@ namespace PoleproWpMediaRenamer
 
             Array.Sort(arrDgvInfo);
 
+            // DataGridViewを更新
             for (int intA = 0; intA < arrDgvInfo.Length; intA++)
             {
                 dgvMediaFile.Rows.Add(arrDgvInfo[intA].Split("\t")[0], arrDgvInfo[intA].Split("\t")[1]);
+
+                // 完了済みセルはライトグリーンにする
+                if (arrDgvInfo[intA].Split("\t")[2] == "1" && arrDgvInfo[intA].Split("\t")[1] != "-")
+                {
+                    dgvMediaFile[0, intA].Style.BackColor = Color.LightGreen;
+                    dgvMediaFile[1, intA].Style.BackColor = Color.LightGreen;
+                }
             }
 
             dgvMediaFile.CurrentCell = null;
             dgvMediaFile.ClearSelection();
         }
 
-        /// <summary>
-        /// 公式リファレンスを開く
-        /// </summary>
+
+
+        // ================================================
+        // ==== 公式リファレンスを既定のブラウザで開く ====
+        // ================================================
         private void btnReference_Click(object sender, EventArgs e)
         {
             string strUrl = CommonInfo.ReferenceUrl;
             OpenUrl(strUrl);
         }
 
-        /// <summary>
-        /// 引数で受け取ったURLを、既定のブラウザで開く
-        /// </summary>
         private Process OpenUrl(string strUrl)
         {
             ProcessStartInfo psiOpenUrl = new ProcessStartInfo()
@@ -189,6 +216,8 @@ namespace PoleproWpMediaRenamer
             return Process.Start(psiOpenUrl);
         }
 
+
+
         /// <summary>
         /// btnRemoveをクリック時、選択中のファイルをリストから除く
         /// </summary>
@@ -196,7 +225,7 @@ namespace PoleproWpMediaRenamer
         {
             if (dgvMediaFile.CurrentCell == null)
             {
-                MessageBox.Show("さくじょたいしょうをせんたくしたまへ");
+                System.Windows.Forms.MessageBox.Show(Message.GetMessage("M0001"), Message.GetCaption("C0000"), MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                 return;
             }
 
@@ -216,6 +245,8 @@ namespace PoleproWpMediaRenamer
             UpdateDgvMediaFile();
         }
 
+
+
         /// <summary>
         /// tbDefineStringの入力値変更イベント
         /// </summary>
@@ -224,7 +255,7 @@ namespace PoleproWpMediaRenamer
             string strInput = tbDefineString.Text;
             int intLength = strInput.Length;
 
-            string strAllowChar = "abcdefghijklmnopqrstuvwxyz0123456789";
+            string strAllowChar = CommonInfo.AllowChar;
             string strNormalize = "";
 
             bool boolAlert = false;
@@ -253,7 +284,7 @@ namespace PoleproWpMediaRenamer
             if (boolAlert == true && boolCharAlert == true)
             {
                 boolCharAlert = false;
-                MessageBox.Show("つかえないよ");
+                MessageBox.Show(Message.GetMessage("M0002"), Message.GetCaption("C0000"), MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
             }
 
             intLength = strNormalize.Length;
@@ -263,20 +294,27 @@ namespace PoleproWpMediaRenamer
                 if (boolLengthAlert == true)
                 {
                     boolLengthAlert = false;
-                    MessageBox.Show("ながーい");
+                    MessageBox.Show(Message.GetMessage("M0003"), Message.GetCaption("C0000"), MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                 }
                 strNormalize = strNormalize.Substring(0, 12);
             }
 
             tbDefineString.Text = strNormalize;
             CommonInfo.DefineString = strNormalize;
+            SetSampleName();
         }
 
+
+
+        // ======================================
+        // ==== ラジオボタン切り替えイベント ====
+        // ======================================
         private void rbPatternA_CheckedChanged(object sender, EventArgs e)
         {
             if (rbPatternA.Checked == true)
             {
                 CommonInfo.FileNamePattern = "0";
+                SetSampleName();
             }
         }
 
@@ -285,6 +323,7 @@ namespace PoleproWpMediaRenamer
             if (rbPatternB.Checked == true)
             {
                 CommonInfo.FileNamePattern = "1";
+                SetSampleName();
             }
         }
 
@@ -293,6 +332,7 @@ namespace PoleproWpMediaRenamer
             if (rbPatternC.Checked == true)
             {
                 CommonInfo.FileNamePattern = "2";
+                SetSampleName();
             }
         }
 
@@ -301,9 +341,25 @@ namespace PoleproWpMediaRenamer
             if (rbPatternD.Checked == true)
             {
                 CommonInfo.FileNamePattern = "3";
+                SetSampleName();
             }
         }
 
+
+
+        /// <summary>
+        /// 出力フォルダの参照ボタンを押したとき
+        /// </summary>
+        private void SetSampleName()
+        {
+            labelSampleFileName.Text = FileName.Create(CommonInfo.AppLogTxt) + ".[拡張子]";
+        }
+
+
+
+        /// <summary>
+        /// 出力フォルダを開くチェックボックスの切り替えイベント
+        /// </summary>
         private void chkbOpenDir_CheckedChanged(object sender, EventArgs e)
         {
             if (chkbOpenDir.Checked == true)
@@ -316,6 +372,11 @@ namespace PoleproWpMediaRenamer
             }
         }
 
+
+
+        /// <summary>
+        /// オリジナルファイルを削除するチェックボックスの切り替えイベント
+        /// </summary>
         private void chkbDeleteFile_CheckedChanged(object sender, EventArgs e)
         {
             if (chkbDeleteFile.Checked == true)
@@ -327,6 +388,8 @@ namespace PoleproWpMediaRenamer
                 CommonInfo.DeleteFile = "0";
             }
         }
+
+
 
         /// <summary>
         /// 出力フォルダの参照ボタンを押したとき
@@ -357,6 +420,8 @@ namespace PoleproWpMediaRenamer
             tbExportDir.Text = CommonInfo.ExportDir;
         }
 
+
+
         /// <summary>
         /// 履歴リセットボタンを押したとき
         /// </summary>
@@ -365,7 +430,7 @@ namespace PoleproWpMediaRenamer
             int intCount = 0;
 
             // 確認メッセージ1回目
-            DialogResult drConfirm1 = MessageBox.Show("履歴をリセットしますか？", "質問", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button2);
+            DialogResult drConfirm1 = MessageBox.Show(Message.GetMessage("M0004"),Message.GetMessage("C0001"), MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button2);
 
             if (drConfirm1 == DialogResult.Yes)
             {
@@ -375,7 +440,7 @@ namespace PoleproWpMediaRenamer
             if (intCount == 1)
             {
                 // 確認メッセージ2回目
-                DialogResult drConfirm2 = MessageBox.Show("後悔しないのですね？", "質問", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button2);
+                DialogResult drConfirm2 = MessageBox.Show(Message.GetMessage("M0005"), Message.GetMessage("C0001"), MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button2);
 
                 if (drConfirm2 == DialogResult.Yes)
                 {
@@ -385,20 +450,22 @@ namespace PoleproWpMediaRenamer
 
             if (intCount == 2)
             {
-                if (File.Exists(CommonInfo.LogTxt))
+                if (File.Exists(CommonInfo.FileNameLogTxt))
                 {
-                    File.Delete(CommonInfo.LogTxt);
+                    File.Delete(CommonInfo.FileNameLogTxt);
                 }
 
-                if (!File.Exists(CommonInfo.LogTxt))
+                if (!File.Exists(CommonInfo.FileNameLogTxt))
                 {
-                    FileStream fsLog = File.Create(CommonInfo.LogTxt);
-                    fsLog.Close();
+                    FileStream fsFileNameLog = File.Create(CommonInfo.FileNameLogTxt);
+                    fsFileNameLog.Close();
                 }
 
-                CommonInfo.ReadLog();
+                CommonInfo.ReadFileNameLog();
             }
         }
+
+
 
         /// <summary>
         /// リネーム実行ボタンを押したとき
@@ -408,7 +475,7 @@ namespace PoleproWpMediaRenamer
             // 変換対象があるか
             if (dgvMediaFile.Rows.Count == 0)
             {
-                MessageBox.Show("ふぉるだないお");
+                MessageBox.Show(Message.GetMessage("M0006"), Message.GetCaption("C0000"), MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                 return;
             }
 
@@ -424,10 +491,16 @@ namespace PoleproWpMediaRenamer
 
             if (boolExistRenameFile == false)
             {
-                MessageBox.Show("ふぉるだないお");
+                MessageBox.Show(Message.GetMessage("M0007"), Message.GetCaption("C0000"), MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                 return;
             }
 
+            // 任意文字列を使用するのにカラのとき
+            if (CommonInfo.FileNamePattern == "0" && CommonInfo.DefineString == "")
+            {
+                MessageBox.Show(Message.GetMessage("M0008"), Message.GetCaption("C0000"), MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                return;
+            }
 
             // 出力フォルダが存在するかチェックする
             string strExportDir = tbExportDir.Text;
@@ -447,7 +520,7 @@ namespace PoleproWpMediaRenamer
 
             if (!Directory.Exists(strExportDir))
             {
-                MessageBox.Show("ふぉるだないお");
+                MessageBox.Show(Message.GetMessage("M0009"), Message.GetCaption("C0000"), MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                 return;
             }
 
@@ -475,25 +548,7 @@ namespace PoleproWpMediaRenamer
                 string strBeforeFileName = arrRenameInfo[intA].Split("\t")[0];
                 string strFilePath = arrRenameInfo[intA].Split("\t")[1];
                 string strExtension = arrRenameInfo[intA].Split("\t")[2];
-
-                string strFileName = "";
-                if (rbPatternA.Checked == true)
-                {
-                    strFileName = FileName.PatternA(strFilePath, tbDefineString.Text);
-                }
-                else if (rbPatternB.Checked == true)
-                {
-                    strFileName = FileName.PatternB(strFilePath);
-
-                }
-                else if (rbPatternC.Checked == true)
-                {
-                    strFileName = FileName.PatternC(strFilePath);
-                }
-                else
-                {
-                    strFileName = FileName.PatternD();
-                }
+                string strFileName = FileName.Create(strFilePath);
 
                 if (strFileName == "")
                 {
@@ -503,7 +558,7 @@ namespace PoleproWpMediaRenamer
                 {
                     string strAfterFileName = strFileName + "." + strExtension;
                     arrRenameInfo[intA] = strBeforeFileName + "\t" + strAfterFileName + "\t" + strFilePath + "\t" + strExportDir + "\\" + strAfterFileName;
-                    CommonInfo.AppendLog(strFileName);
+                    CommonInfo.AppendFileNameLog(strFileName);
                 }
             }
 
@@ -517,13 +572,11 @@ namespace PoleproWpMediaRenamer
                     string strBeforePath = arrRenameInfo[intA].Split("\t")[2];
                     string strAfterPath = arrRenameInfo[intA].Split("\t")[3];
 
-                    bool boolRename = false;
                     bool boolDelete = false;
 
                     if (File.Exists(strBeforePath) && !File.Exists(strAfterPath))
                     {
                         File.Copy(strBeforePath, strAfterPath);
-                        boolRename = true;
 
                         if (chkbDeleteFile.Checked == true)
                         {
@@ -537,10 +590,8 @@ namespace PoleproWpMediaRenamer
                             if (listFileInfo[intB].BeforeFileName == strBeforeFileName)
                             {
                                 listFileInfo[intB].AfterFileName = strAfterFileName;
-                                if (boolRename == true)
-                                {
-                                    listFileInfo[intB].RenameFlag = "1";
-                                }
+                                listFileInfo[intB].RenameFlag = "1";
+
                                 if (boolDelete == true)
                                 {
                                     listFileInfo[intB].DeleteFlag = "1";
@@ -555,13 +606,17 @@ namespace PoleproWpMediaRenamer
 
             UpdateDgvMediaFile();
 
+            // チェックボックスに応じて、フォルダを開く
             if (chkbOpenDir.Checked == true)
             {
                 Process.Start("EXPLORER.EXE", strExportDir);
             }
 
-            MessageBox.Show("かんりょう");
+            // 完了メッセージ
+            MessageBox.Show(Message.GetMessage("M0010"), Message.GetCaption("C0002"), MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
         }
+
+
 
         /// <summary>
         /// アプリケーション終了イベント
@@ -569,7 +624,10 @@ namespace PoleproWpMediaRenamer
         private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
         {
             CommonInfo.WriteConfig();
-            CommonInfo.WriteLog();
+            CommonInfo.WriteFileNameLog();
+
+            // アプリケーション終了をログに記録
+            Logger.Log(Logger.GetLog("L0001"));
         }
     }
 }
