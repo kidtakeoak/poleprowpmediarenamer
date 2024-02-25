@@ -31,6 +31,8 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             pbDropArea = new PictureBox();
             dgvMediaFile = new DataGridView();
+            col1DgvMediaFile = new DataGridViewTextBoxColumn();
+            col2DgvMediaFile = new DataGridViewTextBoxColumn();
             groupBox1 = new GroupBox();
             labelPatternA = new Label();
             tbDefineString = new TextBox();
@@ -50,8 +52,6 @@
             btnRename = new Button();
             btnRemove = new Button();
             btnReference = new Button();
-            col1DgvMediaFile = new DataGridViewTextBoxColumn();
-            col2DgvMediaFile = new DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)pbDropArea).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dgvMediaFile).BeginInit();
             groupBox1.SuspendLayout();
@@ -86,6 +86,20 @@
             dgvMediaFile.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvMediaFile.Size = new Size(320, 288);
             dgvMediaFile.TabIndex = 1;
+            // 
+            // col1DgvMediaFile
+            // 
+            col1DgvMediaFile.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            col1DgvMediaFile.HeaderText = "オリジナルファイル名";
+            col1DgvMediaFile.Name = "col1DgvMediaFile";
+            col1DgvMediaFile.ReadOnly = true;
+            // 
+            // col2DgvMediaFile
+            // 
+            col2DgvMediaFile.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            col2DgvMediaFile.HeaderText = "リネームファイル名";
+            col2DgvMediaFile.Name = "col2DgvMediaFile";
+            col2DgvMediaFile.ReadOnly = true;
             // 
             // groupBox1
             // 
@@ -290,20 +304,6 @@
             btnReference.UseVisualStyleBackColor = true;
             btnReference.Click += btnReference_Click;
             // 
-            // col1DgvMediaFile
-            // 
-            col1DgvMediaFile.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            col1DgvMediaFile.HeaderText = "オリジナルファイル名";
-            col1DgvMediaFile.Name = "col1DgvMediaFile";
-            col1DgvMediaFile.ReadOnly = true;
-            // 
-            // col2DgvMediaFile
-            // 
-            col2DgvMediaFile.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            col2DgvMediaFile.HeaderText = "リネームファイル名";
-            col2DgvMediaFile.Name = "col2DgvMediaFile";
-            col2DgvMediaFile.ReadOnly = true;
-            // 
             // FormMain
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -323,7 +323,8 @@
             MinimizeBox = false;
             Name = "FormMain";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "WPメディア命名くん Ver.1.0";
+            Text = "WPメディア命名くん Ver.1.0.0";
+            TopMost = true;
             FormClosing += FormMain_FormClosing;
             ((System.ComponentModel.ISupportInitialize)pbDropArea).EndInit();
             ((System.ComponentModel.ISupportInitialize)dgvMediaFile).EndInit();

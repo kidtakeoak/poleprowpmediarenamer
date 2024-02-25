@@ -1,18 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Nodes;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Microsoft.VisualBasic;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-
 
 namespace PoleproWpMediaRenamer
 {
@@ -115,7 +101,7 @@ namespace PoleproWpMediaRenamer
                                 if (listFileInfo[intC].BeforeFileName == strBeforeFileName)
                                 {
                                     boolAdd = false;
-                                    System.Windows.Forms.MessageBox.Show(Message.GetMessage("M0000"), Message.GetCaption("C0000"), MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                                    MessageBox.Show(Message.GetMessage("M0000"), Message.GetCaption("C0000"), MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                                     break;
                                 }
                             }
@@ -430,7 +416,7 @@ namespace PoleproWpMediaRenamer
             int intCount = 0;
 
             // 確認メッセージ1回目
-            DialogResult drConfirm1 = MessageBox.Show(Message.GetMessage("M0004"),Message.GetMessage("C0001"), MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button2);
+            DialogResult drConfirm1 = MessageBox.Show(Message.GetMessage("M0004"),Message.GetCaption("C0001"), MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button2);
 
             if (drConfirm1 == DialogResult.Yes)
             {
@@ -440,7 +426,7 @@ namespace PoleproWpMediaRenamer
             if (intCount == 1)
             {
                 // 確認メッセージ2回目
-                DialogResult drConfirm2 = MessageBox.Show(Message.GetMessage("M0005"), Message.GetMessage("C0001"), MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button2);
+                DialogResult drConfirm2 = MessageBox.Show(Message.GetMessage("M0005"), Message.GetCaption("C0001"), MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button2);
 
                 if (drConfirm2 == DialogResult.Yes)
                 {
